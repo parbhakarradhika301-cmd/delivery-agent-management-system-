@@ -24,10 +24,12 @@ app.use(helmet());
 app.use(compression());
 
 // CORS Configuration with exposed X-Cache header
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+const corsOrigin = process.env.CORS_ORIGIN;
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: corsOrigin && corsOrigin !== '*'
+      ? (corsOrigin.includes(',') ? corsOrigin.split(',').map((s) => s.trim()) : corsOrigin)
+      : true,
     credentials: true,
     exposedHeaders: ['X-Cache'],
   })
