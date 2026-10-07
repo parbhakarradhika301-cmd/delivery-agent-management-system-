@@ -1,6 +1,6 @@
 /**
  * Thin HTTP controller layer for agent resource operations.
- * Extracts parameters from request, invokes service methods, and formats HTTP responses.
+ * Extracts parameters from request, invokes service methods, sets X-Cache headers, and formats HTTP responses.
  */
 const agentService = require('../services/agent.service');
 const asyncHandler = require('../utils/asyncHandler');
@@ -18,24 +18,26 @@ const createAgent = asyncHandler(async (req, res) => {
 
 /**
  * List all delivery agents, newest first.
- * Responds with 200 OK and { data: [...], count: n }.
+ * Sets X-Cache: HIT | MISS header and responds with 200 OK and { data: [...], count: n }.
  */
 const getAgents = asyncHandler(async (req, res) => {
-  const agents = await agentService.getAllAgents();
+  const { data, cacheHit } = await agentService.getAllAgents();
+  res.set('X-Cache', cacheHit ? 'HIT' : 'MISS');
   res.status(200).json({
-    data: agents,
-    count: agents.length,
+    data,
+    count: data.length,
   });
 });
 
 /**
  * Retrieve a specific delivery agent by ID.
- * Responds with 200 OK and { data: ... }.
+ * Sets X-Cache: HIT | MISS header and responds with 200 OK and { data: ... }.
  */
 const getAgentById = asyncHandler(async (req, res) => {
-  const agent = await agentService.getAgentById(req.params.id);
+  const { data, cacheHit } = await agentService.getAgentById(req.params.id);
+  res.set('X-Cache', cacheHit ? 'HIT' : 'MISS');
   res.status(200).json({
-    data: agent,
+    data,
   });
 });
 

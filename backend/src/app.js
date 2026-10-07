@@ -1,6 +1,6 @@
 /**
  * Express application configuration module.
- * Sets up global middleware, routes, and error handlers.
+ * Sets up global middleware, CORS with exposed headers, routes, and error handlers.
  * Exported without calling app.listen() to facilitate automated integration testing.
  */
 const express = require('express');
@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const agentRoutes = require('./routes/agent.routes');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
+const { isRedisReady } = require('./lib/redis');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(
   cors({
     origin: corsOrigin,
     credentials: true,
+    exposedHeaders: ['X-Cache'],
   })
 );
 
@@ -29,9 +31,12 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health Check Endpoint
+// Health Check Endpoint with Redis connectivity status
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({
+    status: 'ok',
+    redis: isRedisReady() ? 'up' : 'down',
+  });
 });
 
 // Primary API Routes

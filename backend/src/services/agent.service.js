@@ -1,12 +1,25 @@
 /**
- * Agent Service layer handling all business logic and database interactions.
+ * Agent Service layer handling business logic, database queries, and Redis caching.
  *
- * NOTE FOR FUTURE CACHING (REDIS):
- * This service layer is isolated from HTTP controllers. When Redis is introduced in the next step,
- * caching logic (e.g., cache-aside in getAgentById / list, and invalidation in create / update / delete)
- * can be implemented directly within this service without modifying any controllers.
+ * CACHING STRATEGY:
+ * - Pattern: Cache-Aside (Lazy Loading) with Write Invalidation.
+ * - Reads:
+ *   1. Check Redis first. If key exists, return cached data immediately (Cache HIT).
+ *   2. On miss, query PostgreSQL via Prisma, write to Redis with a TTL (default 60s),
+ *      and return data (Cache MISS).
+ *   3. If an agent record is not found (404), do NOT cache the null result.
+ * - Writes (create, update, delete):
+ *   1. Execute database mutation first.
+ *   2. After database mutation succeeds, invalidate relevant cache keys:
+ *      - create: invalidate dams:agents:list
+ *      - update: invalidate dams:agent:{id} and dams:agents:list
+ *      - delete: invalidate dams:agent:{id} and dams:agents:list
+ * - Resilience:
+ *   All cache operations gracefully degrade: if Redis is offline or fails,
+ *   the system continues serving requests directly from PostgreSQL.
  */
 const prisma = require('../lib/prisma');
+const cache = require('../lib/cache');
 const ApiError = require('../utils/ApiError');
 
 /**
@@ -32,6 +45,7 @@ const formatAgentResponse = (agent) => {
 
 /**
  * Create a new delivery agent.
+ * Invalidates the cached agent list upon successful DB insertion.
  *
  * @param {object} agentData - Validated agent attributes
  * @returns {Promise<object>} Created agent formatted for API
@@ -49,19 +63,27 @@ const createAgent = async (agentData) => {
     data,
   });
 
-  // [Cache Hook]: Invalidate agent list cache here when Redis is integrated
+  // Invalidate agent list cache after DB write succeeds
+  await cache.del(cache.keys.agentList());
 
   return formatAgentResponse(agent);
 };
 
 /**
- * Retrieve all delivery agents sorted by newest first.
+ * Retrieve all delivery agents sorted by newest first with cache-aside.
  *
- * @returns {Promise<Array<object>>} List of all agents
+ * @returns {Promise<{ data: Array<object>, cacheHit: boolean }>} List of agents and hit indicator
  */
 const getAllAgents = async () => {
-  // [Cache Hook]: Check Redis for cached list before querying DB
+  const cacheKey = cache.keys.agentList();
 
+  // 1. Try reading from cache
+  const cachedList = await cache.getJSON(cacheKey);
+  if (cachedList) {
+    return { data: cachedList, cacheHit: true };
+  }
+
+  // 2. Fetch from database on cache miss
   const agents = await prisma.agent.findMany({
     orderBy: {
       createdAt: 'desc',
@@ -70,38 +92,49 @@ const getAllAgents = async () => {
 
   const formattedAgents = agents.map(formatAgentResponse);
 
-  // [Cache Hook]: Store formatted list in Redis with TTL
+  // 3. Store formatted list in cache with TTL
+  await cache.setJSON(cacheKey, formattedAgents);
 
-  return formattedAgents;
+  return { data: formattedAgents, cacheHit: false };
 };
 
 /**
- * Retrieve a single delivery agent by unique ID.
+ * Retrieve a single delivery agent by unique ID with cache-aside.
  *
  * @param {string} id - Agent UUID
- * @returns {Promise<object>} Found agent formatted for API
- * @throws {ApiError} 404 AGENT_NOT_FOUND if no agent matches id
+ * @returns {Promise<{ data: object, cacheHit: boolean }>} Found agent and hit indicator
+ * @throws {ApiError} 404 AGENT_NOT_FOUND if no agent matches id (never cached)
  */
 const getAgentById = async (id) => {
-  // [Cache Hook]: Check Redis cache for agent by id before querying DB
+  const cacheKey = cache.keys.agent(id);
 
+  // 1. Try reading from cache
+  const cachedAgent = await cache.getJSON(cacheKey);
+  if (cachedAgent) {
+    return { data: cachedAgent, cacheHit: true };
+  }
+
+  // 2. Query database on cache miss
   const agent = await prisma.agent.findUnique({
     where: { id },
   });
 
+  // Throw 404 and DO NOT cache missing records
   if (!agent) {
     throw new ApiError(404, 'AGENT_NOT_FOUND', 'Agent not found');
   }
 
   const formatted = formatAgentResponse(agent);
 
-  // [Cache Hook]: Store agent in Redis with key `agent:${id}`
+  // 3. Store in cache with TTL
+  await cache.setJSON(cacheKey, formatted);
 
-  return formatted;
+  return { data: formatted, cacheHit: false };
 };
 
 /**
  * Partially update an existing agent.
+ * Invalidates both the specific agent cache and list cache after successful DB update.
  *
  * @param {string} id - Agent UUID
  * @param {object} updateData - Validated partial fields to update
@@ -131,13 +164,15 @@ const updateAgent = async (id, updateData) => {
     data: dataToUpdate,
   });
 
-  // [Cache Hook]: Invalidate/update Redis cache for `agent:${id}` and list cache
+  // Invalidate both agent cache and list cache after DB update succeeds
+  await cache.del(cache.keys.agent(id), cache.keys.agentList());
 
   return formatAgentResponse(updatedAgent);
 };
 
 /**
  * Delete a delivery agent by ID.
+ * Invalidates both the specific agent cache and list cache after successful DB delete.
  *
  * @param {string} id - Agent UUID
  * @returns {Promise<void>}
@@ -157,7 +192,8 @@ const deleteAgent = async (id) => {
     where: { id },
   });
 
-  // [Cache Hook]: Remove `agent:${id}` from Redis and invalidate list cache
+  // Invalidate both agent cache and list cache after DB delete succeeds
+  await cache.del(cache.keys.agent(id), cache.keys.agentList());
 };
 
 module.exports = {
