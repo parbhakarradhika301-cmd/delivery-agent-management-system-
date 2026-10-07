@@ -262,6 +262,7 @@ Open your browser at: `http://localhost:3000` (automatically redirects to `http:
 | Variable | Required | Example | Description |
 | :--- | :--- | :--- | :--- |
 | `NEXT_PUBLIC_API_URL` | Yes | `http://localhost:4000` | Base URL pointing to the Express backend API |
+| `NEXT_PUBLIC_SHOW_CACHE_STATUS` | No | `true` | Shows Redis cache HIT/MISS badges (demo/debug only; set to false in production) |
 
 ---
 
@@ -420,6 +421,24 @@ The system utilizes the **Cache-Aside (Lazy Loading)** pattern paired with **Del
    - `lib/cache.js` catches all Redis errors. If Redis is down, warnings are logged, `/health` reports `"redis": "down"`, and all requests are transparently fulfilled directly from PostgreSQL without downtime.
 7. **Concurrency Trade-Off**:
    - A theoretical race condition exists if a cache miss read executes concurrently with an active write. This is mitigated by immediate post-write deletion and bounded by the 60s TTL.
+8. **UI Cache Badge Display Flag**:
+   - The frontend `CacheBadge` is conditionally rendered only when the environment variable `NEXT_PUBLIC_SHOW_CACHE_STATUS` is `"true"` (for demo/debugging; set to `false` in production).
+
+---
+
+## Performance & Optimizations
+
+- **Halved Mutation DB Round Trips**: Removed pre-flight `findUnique` lookups in `updateAgent` and `deleteAgent`, executing mutations in a single round trip while Prisma `P2025` cleanly maps to 404.
+- **Database Indexing**: Added `@@index([createdAt])` on `Agent` model in PostgreSQL to accelerate `ORDER BY createdAt DESC` list queries.
+- **Response Gzip Compression**: Integrated `compression()` middleware to gzip JSON payloads and minimize network bandwidth consumption.
+- **Security Hardening (Helmet)**: Added `helmet()` to inject standard defense-in-depth HTTP headers (XSS, HSTS, frameguard, sniff protection).
+- **Payload Size Capping**: Constrained `express.json({ limit: '10kb' })` to mitigate memory-exhaustion denial-of-service vectors.
+- **API Rate Limiting**: Added `express-rate-limit` (300 requests/minute per IP) on `/api` returning status 429 `RATE_LIMITED` (bypassed in test environment).
+- **Deferred Search Filtering**: Integrated React 19 `useDeferredValue` for search input to keep keyboard typing 100% fluid regardless of list length.
+- **Optimistic Deletions**: Immediately evicts agent rows from the list view on confirmation with automatic state rollback if the backend request fails.
+- **Zero Cumulative Layout Shift (CLS)**: Reserved fixed dimensions for skeletons and cache badges to eliminate jarring visual shifts when cache headers load.
+- **Route-Level Boundaries**: Added `loading.js`, `error.js`, and `not-found.js` for instant skeleton streaming and resilient error recovery.
+- **WCAG AA High-Contrast Accessibility**: Enhanced text color contrast ratios, added `aria-live="polite"` announcements, and ensured focus rings on all interactive elements.
 
 ---
 

@@ -187,10 +187,10 @@ export default function AgentForm({
       {topError && (
         <div
           role="alert"
-          className="p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 flex items-start gap-3"
+          className="p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-800 flex items-start gap-3"
         >
           <svg
-            className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"
+            className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -203,7 +203,7 @@ export default function AgentForm({
               d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
             />
           </svg>
-          <span className="font-medium">{topError}</span>
+          <span className="font-semibold">{topError}</span>
         </div>
       )}
 
@@ -211,9 +211,9 @@ export default function AgentForm({
       <div>
         <label
           htmlFor="fullName"
-          className="block text-sm font-semibold text-zinc-800 mb-1.5"
+          className="block text-sm font-semibold text-zinc-900 mb-1.5"
         >
-          Full Name <span className="text-red-500">*</span>
+          Full Name <span className="text-red-600">*</span>
         </label>
         <input
           id="fullName"
@@ -222,7 +222,7 @@ export default function AgentForm({
           value={formData.fullName}
           onChange={handleChange}
           placeholder="e.g. John Doe"
-          className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 transition-all ${
+          className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${
             errors.fullName
               ? 'border-red-400 focus:ring-red-400 bg-red-50/20'
               : 'border-zinc-300 focus:ring-indigo-500 focus:border-indigo-500'
@@ -231,7 +231,7 @@ export default function AgentForm({
           aria-describedby={errors.fullName ? 'fullName-error' : undefined}
         />
         {errors.fullName && (
-          <p id="fullName-error" className="mt-1.5 text-xs text-red-600 font-medium">
+          <p id="fullName-error" className="mt-1.5 text-xs text-red-700 font-semibold">
             {errors.fullName}
           </p>
         )}
@@ -242,9 +242,9 @@ export default function AgentForm({
         <div>
           <label
             htmlFor="phone"
-            className="block text-sm font-semibold text-zinc-800 mb-1.5"
+            className="block text-sm font-semibold text-zinc-900 mb-1.5"
           >
-            Phone Number <span className="text-red-500">*</span>
+            Phone Number <span className="text-red-600">*</span>
           </label>
           <input
             id="phone"
@@ -253,7 +253,7 @@ export default function AgentForm({
             value={formData.phone}
             onChange={handleChange}
             placeholder="e.g. +919876543210"
-            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 transition-all ${
+            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${
               errors.phone
                 ? 'border-red-400 focus:ring-red-400 bg-red-50/20'
                 : 'border-zinc-300 focus:ring-indigo-500 focus:border-indigo-500'
@@ -262,20 +262,20 @@ export default function AgentForm({
             aria-describedby={errors.phone ? 'phone-error' : undefined}
           />
           {errors.phone && (
-            <p id="phone-error" className="mt-1.5 text-xs text-red-600 font-medium">
+            <p id="phone-error" className="mt-1.5 text-xs text-red-700 font-semibold">
               {errors.phone}
             </p>
           )}
-          <p className="mt-1 text-[11px] text-zinc-600">10–15 digits, optional leading +</p>
+          <p className="mt-1 text-xs text-zinc-600 font-medium">10–15 digits, optional leading +</p>
         </div>
 
         {/* Email */}
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-semibold text-zinc-800 mb-1.5"
+            className="block text-sm font-semibold text-zinc-900 mb-1.5"
           >
-            Email Address <span className="text-red-500">*</span>
+            Email Address <span className="text-red-600">*</span>
           </label>
           <input
             id="email"
@@ -284,7 +284,7 @@ export default function AgentForm({
             value={formData.email}
             onChange={handleChange}
             placeholder="e.g. agent@logistics.com"
-            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 transition-all ${
+            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${
               errors.email
                 ? 'border-red-400 focus:ring-red-400 bg-red-50/20'
                 : 'border-zinc-300 focus:ring-indigo-500 focus:border-indigo-500'
@@ -293,7 +293,7 @@ export default function AgentForm({
             aria-describedby={errors.email ? 'email-error' : undefined}
           />
           {errors.email && (
-            <p id="email-error" className="mt-1.5 text-xs text-red-600 font-medium">
+            <p id="email-error" className="mt-1.5 text-xs text-red-700 font-semibold">
               {errors.email}
             </p>
           )}
@@ -305,9 +305,9 @@ export default function AgentForm({
         <div>
           <label
             htmlFor="serviceArea"
-            className="block text-sm font-semibold text-zinc-800 mb-1.5"
+            className="block text-sm font-semibold text-zinc-900 mb-1.5"
           >
-            Service Area <span className="text-red-500">*</span>
+            Service Area <span className="text-red-600">*</span>
           </label>
           <input
             id="serviceArea"
@@ -316,7 +316,7 @@ export default function AgentForm({
             value={formData.serviceArea}
             onChange={handleChange}
             placeholder="e.g. Koramangala, Indiranagar"
-            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-400 focus:outline-none focus:ring-2 transition-all ${
+            className={`w-full px-3.5 py-2.5 rounded-lg border text-sm text-zinc-900 bg-white placeholder-zinc-500 focus:outline-none focus:ring-2 transition-all ${
               errors.serviceArea
                 ? 'border-red-400 focus:ring-red-400 bg-red-50/20'
                 : 'border-zinc-300 focus:ring-indigo-500 focus:border-indigo-500'
@@ -325,7 +325,7 @@ export default function AgentForm({
             aria-describedby={errors.serviceArea ? 'serviceArea-error' : undefined}
           />
           {errors.serviceArea && (
-            <p id="serviceArea-error" className="mt-1.5 text-xs text-red-600 font-medium">
+            <p id="serviceArea-error" className="mt-1.5 text-xs text-red-700 font-semibold">
               {errors.serviceArea}
             </p>
           )}
@@ -335,7 +335,7 @@ export default function AgentForm({
         <div>
           <label
             htmlFor="status"
-            className="block text-sm font-semibold text-zinc-800 mb-1.5"
+            className="block text-sm font-semibold text-zinc-900 mb-1.5"
           >
             Operational Status
           </label>
@@ -350,7 +350,7 @@ export default function AgentForm({
             <option value="inactive">Inactive (Off-duty / Paused)</option>
           </select>
           {errors.status && (
-            <p className="mt-1.5 text-xs text-red-600 font-medium">{errors.status}</p>
+            <p className="mt-1.5 text-xs text-red-700 font-semibold">{errors.status}</p>
           )}
         </div>
       </div>
@@ -361,14 +361,14 @@ export default function AgentForm({
           type="button"
           disabled={isSubmitting}
           onClick={handleCancelClick}
-          className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50 transition-colors"
+          className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-zinc-800 bg-white border border-zinc-300 rounded-lg hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50 transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60 shadow-xs transition-colors"
+          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60 shadow-xs transition-colors"
         >
           {isSubmitting ? (
             <>
@@ -376,6 +376,7 @@ export default function AgentForm({
                 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <circle
                   className="opacity-25"

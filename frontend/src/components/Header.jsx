@@ -2,7 +2,7 @@
 
 /**
  * Top navigation header component.
- * Displays application branding, navigation links, and primary "Add agent" action.
+ * Displays application branding, navigation links with aria-current, and primary "Add agent" action.
  */
 
 import Link from 'next/link';
@@ -13,13 +13,13 @@ export default function Header() {
   const isNewPage = pathname === '/agents/new';
 
   return (
-    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-zinc-200">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <Link
               href="/agents"
-              className="flex items-center gap-2.5 text-zinc-900 hover:text-indigo-600 transition-colors group"
+              className="flex items-center gap-2.5 text-zinc-900 hover:text-indigo-600 transition-colors group focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-1"
             >
               <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-xs group-hover:bg-indigo-700 transition-colors">
                 <svg
@@ -51,7 +51,8 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <Link
               href="/agents"
-              className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              aria-current={pathname === '/agents' ? 'page' : undefined}
+              className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 pathname === '/agents'
                   ? 'bg-zinc-100 text-zinc-900 font-semibold'
                   : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
@@ -63,7 +64,7 @@ export default function Header() {
             {!isNewPage && (
               <Link
                 href="/agents/new"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
               >
                 <svg
                   className="w-4 h-4"

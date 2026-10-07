@@ -24,6 +24,10 @@ function EditAgentContent() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    document.title = 'Edit Agent | Delivery Agent Manager';
+  }, []);
+
+  useEffect(() => {
     async function loadAgent() {
       setIsLoading(true);
       setError(null);
@@ -63,7 +67,7 @@ function EditAgentContent() {
     return (
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="h-4 bg-zinc-200 rounded-sm w-32 animate-pulse" />
-        <div className="bg-white p-8 rounded-xl border border-zinc-200/80 shadow-xs space-y-6">
+        <div className="bg-white p-8 rounded-xl border border-zinc-200 shadow-xs space-y-6">
           <div className="h-8 bg-zinc-200 rounded-md w-1/3 animate-pulse" />
           <div className="space-y-4">
             <div className="h-10 bg-zinc-100 rounded-lg animate-pulse" />
@@ -81,7 +85,7 @@ function EditAgentContent() {
         <p className="text-sm text-zinc-600">The agent you wish to edit does not exist.</p>
         <Link
           href="/agents"
-          className="inline-flex px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-2xs"
+          className="inline-flex px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-2xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
           Return to Agents
         </Link>
@@ -96,7 +100,7 @@ function EditAgentContent() {
         <p className="text-sm text-zinc-600">{error}</p>
         <Link
           href="/agents"
-          className="inline-flex px-4 py-2 text-xs font-semibold text-zinc-700 bg-zinc-100 rounded-lg hover:bg-zinc-200 transition-colors"
+          className="inline-flex px-4 py-2 text-xs font-semibold text-zinc-800 bg-zinc-100 rounded-lg hover:bg-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Return to Agents
         </Link>
@@ -107,16 +111,16 @@ function EditAgentContent() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-500">
-        <Link href="/agents" className="hover:text-indigo-600 transition-colors">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-600">
+        <Link href="/agents" className="hover:text-indigo-600 transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded">
           Agents
         </Link>
         <span>/</span>
-        <Link href={`/agents/${id}`} className="hover:text-indigo-600 transition-colors">
+        <Link href={`/agents/${id}`} className="hover:text-indigo-600 transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded">
           {agent?.fullName}
         </Link>
         <span>/</span>
-        <span className="text-zinc-900 font-medium">Edit</span>
+        <span className="text-zinc-900 font-semibold" aria-current="page">Edit</span>
       </nav>
 
       {/* Header */}
@@ -130,7 +134,7 @@ function EditAgentContent() {
       </div>
 
       {/* Prefilled Form Container */}
-      <div className="bg-white p-6 sm:p-8 rounded-xl border border-zinc-200/80 shadow-xs">
+      <div className="bg-white p-6 sm:p-8 rounded-xl border border-zinc-200 shadow-xs">
         <AgentForm
           initialData={agent}
           isEdit={true}
@@ -148,7 +152,7 @@ export default function EditAgentPage() {
       fallback={
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="h-4 bg-zinc-200 rounded-sm w-32 animate-pulse" />
-          <div className="bg-white p-8 rounded-xl border border-zinc-200/80 shadow-xs h-64 animate-pulse" />
+          <div className="bg-white p-8 rounded-xl border border-zinc-200 shadow-xs h-64 animate-pulse" />
         </div>
       }
     >

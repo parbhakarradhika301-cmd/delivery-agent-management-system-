@@ -1,21 +1,33 @@
 /**
  * Root layout component.
- * Configures typography, global metadata, top navigation header, and Sonner toast notifications.
+ * Configures typography via next/font, SEO metadata with title templates,
+ * top navigation header, and Sonner toast notifications.
  */
 
 import './globals.css';
 import Header from '@/components/Header';
 import { Toaster } from 'sonner';
 import { Suspense } from 'react';
+import { Geist } from 'next/font/google';
+
+const geist = Geist({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-geist',
+});
 
 export const metadata = {
-  title: 'Delivery Agent Management System',
-  description: 'Manage logistics agents, routes, and operational availability with low-latency caching.',
+  title: {
+    default: 'Delivery Agent Manager',
+    template: '%s | Delivery Agent Manager',
+  },
+  description:
+    'Manage logistics fleet agents, service zones, and real-time operational availability with low-latency Redis caching.',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="h-full bg-zinc-50 antialiased">
+    <html lang="en" className={`${geist.variable} h-full bg-zinc-50 antialiased`}>
       <body className="min-h-full flex flex-col font-sans text-zinc-900">
         <Toaster position="top-right" richColors closeButton />
         <Suspense fallback={<div className="h-16 bg-white border-b border-zinc-200" />}>

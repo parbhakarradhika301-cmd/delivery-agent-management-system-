@@ -5,6 +5,7 @@
  * Houses AgentForm in create mode and redirects to the new agent details upon success.
  */
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AgentForm from '@/components/AgentForm';
@@ -13,6 +14,10 @@ import { toast } from 'sonner';
 
 export default function NewAgentPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    document.title = 'Add Agent | Delivery Agent Manager';
+  }, []);
 
   const handleCreate = async (payload) => {
     const res = await createAgent(payload);
@@ -23,12 +28,12 @@ export default function NewAgentPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-500">
-        <Link href="/agents" className="hover:text-indigo-600 transition-colors">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-600">
+        <Link href="/agents" className="hover:text-indigo-600 transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 rounded">
           Agents
         </Link>
         <span>/</span>
-        <span className="text-zinc-900 font-medium">New Agent</span>
+        <span className="text-zinc-900 font-semibold" aria-current="page">New Agent</span>
       </nav>
 
       {/* Page Header */}
@@ -42,7 +47,7 @@ export default function NewAgentPage() {
       </div>
 
       {/* Form Card Container */}
-      <div className="bg-white p-6 sm:p-8 rounded-xl border border-zinc-200/80 shadow-xs">
+      <div className="bg-white p-6 sm:p-8 rounded-xl border border-zinc-200 shadow-xs">
         <AgentForm isEdit={false} onSubmit={handleCreate} />
       </div>
     </div>

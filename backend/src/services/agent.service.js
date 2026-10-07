@@ -9,11 +9,12 @@
  *      and return data (Cache MISS).
  *   3. If an agent record is not found (404), do NOT cache the null result.
  * - Writes (create, update, delete):
- *   1. Execute database mutation first.
+ *   1. Execute database mutation directly in single round-trip.
  *   2. After database mutation succeeds, invalidate relevant cache keys:
  *      - create: invalidate dams:agents:list
  *      - update: invalidate dams:agent:{id} and dams:agents:list
  *      - delete: invalidate dams:agent:{id} and dams:agents:list
+ *   3. If record does not exist on update/delete, Prisma P2025 error maps to 404 AGENT_NOT_FOUND.
  * - Resilience:
  *   All cache operations gracefully degrade: if Redis is offline or fails,
  *   the system continues serving requests directly from PostgreSQL.
@@ -134,23 +135,14 @@ const getAgentById = async (id) => {
 
 /**
  * Partially update an existing agent.
+ * Eliminates extra findUnique query; directly executes update and lets Prisma P2025 map to 404.
  * Invalidates both the specific agent cache and list cache after successful DB update.
  *
  * @param {string} id - Agent UUID
  * @param {object} updateData - Validated partial fields to update
  * @returns {Promise<object>} Updated agent formatted for API
- * @throws {ApiError} 404 AGENT_NOT_FOUND if agent does not exist
  */
 const updateAgent = async (id, updateData) => {
-  // Verify agent exists
-  const existingAgent = await prisma.agent.findUnique({
-    where: { id },
-  });
-
-  if (!existingAgent) {
-    throw new ApiError(404, 'AGENT_NOT_FOUND', 'Agent not found');
-  }
-
   // Construct payload mapping lowercase status to uppercase Prisma enum
   const dataToUpdate = {};
   if (updateData.fullName !== undefined) dataToUpdate.fullName = updateData.fullName;
@@ -159,6 +151,7 @@ const updateAgent = async (id, updateData) => {
   if (updateData.serviceArea !== undefined) dataToUpdate.serviceArea = updateData.serviceArea;
   if (updateData.status !== undefined) dataToUpdate.status = updateData.status.toUpperCase();
 
+  // Single round-trip mutation: throws P2025 if record does not exist
   const updatedAgent = await prisma.agent.update({
     where: { id },
     data: dataToUpdate,
@@ -172,22 +165,14 @@ const updateAgent = async (id, updateData) => {
 
 /**
  * Delete a delivery agent by ID.
+ * Eliminates extra findUnique query; directly executes delete and lets Prisma P2025 map to 404.
  * Invalidates both the specific agent cache and list cache after successful DB delete.
  *
  * @param {string} id - Agent UUID
  * @returns {Promise<void>}
- * @throws {ApiError} 404 AGENT_NOT_FOUND if agent does not exist
  */
 const deleteAgent = async (id) => {
-  // Verify agent exists
-  const existingAgent = await prisma.agent.findUnique({
-    where: { id },
-  });
-
-  if (!existingAgent) {
-    throw new ApiError(404, 'AGENT_NOT_FOUND', 'Agent not found');
-  }
-
+  // Single round-trip mutation: throws P2025 if record does not exist
   await prisma.agent.delete({
     where: { id },
   });
